@@ -1,0 +1,52 @@
+// printing ABC repeatedly using three goroutines
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+func main() {
+	a := make(chan bool)
+	b := make(chan bool)
+	c := make(chan bool)
+
+	// ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+
+	var wg sync.WaitGroup
+	wg.Add(3)
+
+	go func() {
+		defer wg.Done()
+		for i := 0; i <= 2; i++ {
+			<-a
+			fmt.Println("A")
+			b <- true
+		}
+
+	}()
+
+	go func() {
+		defer wg.Done()
+		for i := 0; i <= 2; i++ {
+			<-b
+			fmt.Println("B")
+			c <- true
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		for i := 0; i <= 2; i++ {
+			<-c
+			fmt.Println("C")
+			if i < 2 {
+				a <- true
+			}
+
+		}
+	}()
+	a <- true
+	wg.Wait()
+	
+}
